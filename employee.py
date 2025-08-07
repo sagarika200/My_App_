@@ -10,7 +10,7 @@ bp = Blueprint('employees', __name__, url_prefix='/api')
 # It's recommended to use environment variables for security in a real application.
 DB_CONFIG = {
     'user': 'root',
-    'password': 'Gudu@2005', # <-- mySQL password
+    'password': 'Sagarika@2004', # <-- mySQL password
     'host': '127.0.0.1',
     'database': 'test_db'
 }

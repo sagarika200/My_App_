@@ -11,7 +11,7 @@ bp = Blueprint('columns_api', __name__, url_prefix='/api')
 # We define this again here to make this file self-contained.
 DB_CONFIG = {
     'user': 'root',
-    'password': 'Gudu@2005', # Your MySQL password
+    'password': 'Sagarika@2004', # Your MySQL password
     'host': '127.0.0.1',
     'database': 'employees'
 }

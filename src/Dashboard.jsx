@@ -20,41 +20,63 @@ function Dashboard() {
       });
   }, []);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
+  };
+
+  if (isLoading) return <p className="text-center text-white text-xl mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-300 text-xl mt-10">Error: {error.message}</p>;
 
   return (
-    <div>
-      <h1>Welcome to the Employee Dashboard</h1>
-      <button onClick={() => navigate('/add')}>Add New Employee</button>
-      <button onClick={() => navigate('/columns')}>View Columns</button>
-      <hr />
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Emp No</th>
-            <th>Name</th>
-            <th>Gender</th>
-            <th>Hire Date</th>
-            <th>Birth Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map(employee => (
-            <tr key={employee.emp_no}>
-              <td>
-                <button onClick={() => navigate(`/employee/${employee.emp_no}`)}>
-                  {employee.emp_no}
-                </button>
-              </td>
-              <td>{employee.first_name} {employee.last_name}</td>
-              <td>{employee.gender}</td>
-              <td>{employee.hire_date.split('T')[0]}</td>
-              <td>{employee.birth_date.split('T')[0]}</td>
+    <div className="container mx-auto p-4 flex flex-col items-center">
+      
+
+      <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <button 
+          onClick={() => navigate('/add')} 
+          className="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-blue-600 transform hover:scale-105 transition-all duration-300"
+        >
+          Add New Employee
+        </button>
+        <button 
+          onClick={() => navigate('/columns')}
+          className="bg-gray-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-gray-800 transform hover:scale-105 transition-all duration-300"
+        >
+          View Columns
+        </button>
+      </div>
+
+      <div className="w-full max-w-5xl overflow-hidden rounded-2xl shadow-2xl bg-white/20 backdrop-blur-lg">
+        <table className="min-w-full text-white">
+          <thead className="bg-black/30">
+            <tr>
+              <th className="py-3 px-4 text-left">Emp No</th>
+              <th className="py-3 px-4 text-left">Name</th>
+              <th className="py-3 px-4 text-left">Gender</th>
+              <th className="py-3 px-4 text-left">Hire Date</th>
+              <th className="py-3 px-4 text-left">Birth Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {employees.map(employee => (
+              <tr 
+                key={employee.emp_no} 
+                className="border-b border-white/20 hover:bg-white/10 transition-colors duration-200 cursor-pointer"
+                onClick={() => navigate(`/employee/${employee.emp_no}`)}
+              >
+                <td className="py-3 px-4 text-cyan-300 font-bold hover:underline">
+                  {employee.emp_no}
+                </td>
+                <td className="py-3 px-4 font-medium">{employee.first_name} {employee.last_name}</td>
+                <td className="py-3 px-4">{employee.gender}</td>
+                <td className="py-3 px-4">{formatDate(employee.hire_date)}</td>
+                <td className="py-3 px-4">{formatDate(employee.birth_date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
