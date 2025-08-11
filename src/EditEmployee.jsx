@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 function EditEmployee() {
-  const { emp_no } = useParams(); // Get the employee number from the URL
+  const { emp_no } = useParams();
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState({
     first_name: '',
@@ -16,7 +16,7 @@ function EditEmployee() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // 1. Fetch the current data for the employee to pre-fill the form
+    // Fetch the current data for the employee to pre-fill the form
     fetch(`http://127.0.0.1:5000/api/employee/${emp_no}`)
       .then(response => {
         if (!response.ok) {
@@ -25,7 +25,7 @@ function EditEmployee() {
         return response.json();
       })
       .then(data => {
-        // The dates from the database need to be in YYYY-MM-DD format for the input field
+        // Format dates for the input fields
         const formattedData = {
           ...data,
           birth_date: data.birth_date ? data.birth_date.split('T')[0] : '',
@@ -40,7 +40,6 @@ function EditEmployee() {
       });
   }, [emp_no]);
 
-  // This function updates the state when the user types in an input field
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEmployeeData(prevState => ({
@@ -49,34 +48,46 @@ function EditEmployee() {
     }));
   };
 
-  // This function is called when the form is submitted
-  const handleSubmit = (e) => {
+  // CORRECTED: This function now uses async/await for more robust error handling.
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
 
-    // 2. Send the updated data to the backend
-    fetch(`http://127.0.0.1:5000/api/employee/${emp_no}`, {
-      method: 'PUT', // Use the PUT method for updates
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(employeeData),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        throw new Error(data.error);
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/employee/${emp_no}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(employeeData),
+      });
+
+      // Attempt to parse the response as JSON, no matter what.
+      const data = await response.json();
+
+      // Now, check if the request was successful.
+      if (!response.ok) {
+        // If not, throw an error using the message from the JSON response.
+        throw new Error(data.error || 'An unknown server error occurred.');
       }
-      setMessage('Employee updated successfully!');
-      // Redirect back to the details page after a short delay
+
+      // If we reach here, the update was successful.
+      setMessage(data.message || 'Employee updated successfully!');
       setTimeout(() => {
         navigate(`/employee/${emp_no}`);
-      }, 1500); // 1.5-second delay
-    })
-    .catch(err => {
-      setError(err.message);
-    });
+      }, 1500);
+
+    } catch (err) {
+      // This single catch block handles all types of errors gracefully.
+      if (err instanceof SyntaxError) {
+        // This specifically catches the "Unexpected token '<'" error.
+        setError("Failed to parse server response. The server may be down or returning an invalid HTML error page.");
+      } else {
+        // This catches network errors or the errors we threw manually above.
+        setError(err.message);
+      }
+    }
   };
 
   if (isLoading) {
